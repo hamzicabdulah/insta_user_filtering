@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
+<!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
+<!--[if IE 8]>         <html class="no-js lt-ie9"> <![endif]-->
+<!--[if gt IE 8]><!-->
+<html class="no-js">
+<!--<![endif]-->
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>Instagram Filtering</title>
+    <meta name="author" content="Abdulah Hamzic <https://github.com/hamzicabdulah>">
+    <meta name="description" content="Filtering Instagram followers of specific users">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.100.2/css/materialize.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="css/main.css">
+</head>
+
+<body data-ng-app="instaFiltering" data-ng-controller="instaFilteringCtrl" data-ng-cloak>
+    <!--[if lt IE 7]>
+        <p class="browsehappy">You are using an <strong>outdated</strong> browser. Please <a href="#">upgrade your browser</a> to improve your experience.</p>
+    <![endif]-->
+    <nav class="teal lighten-1">
+        <div class="nav-wrapper">
+            <a href="/" class="brand-logo center">Instagram Filtering</a>
+        </div>
+    </nav>
+    <div class="container">
+        <div class="row" id="form">
+            <form class="col s12" name="filterForm" ng-submit="filterForm.$valid && !runningProcess && startProcess()">
+                <div class="row">
+                    <div class="input-field col s12 m4">
+                        <input type="text" name="username" required ng-model="username" />
+                        <label>Your Instagram Username</label>
+                    </div>
+                    <div class="input-field col s12 m4">
+                        <input type="password" name="pass" required ng-model="pass" />
+                        <label>Your Instagram Password</label>
+                    </div>
+                    <div class="input-field col s12 m4">
+                        <input type="text" name="targetUsername" required ng-model="targetUsername" />
+                        <label>Target User Username</label>
+                    </div>
+                    <div class="input-field col s12 m4">
+                        <select name="targetUserList" ng-model="targetUserList" material-select watch>
+                            <option value="followers">Followers</option>
+                            <option value="following">Following</option>
+                        </select>
+                        <label>Target User List</label>
+                    </div>
+                    <p class="col s12">
+                        <input type="checkbox" name="saveLogin" id="saveLogin" value="saveLogin" ng-model="saveLogin" />
+                        <label for="saveLogin">Save Username & Password</label>
+                    </p>
+                    <button class="btn col s12" type="submit" name="action" ng-disabled="filterForm.$invalid || runningProcess">Search</button>
+                </div>
+            </form>
+        </div>
+        <div class="row" ng-show="users.length > 0">
+            <div ng-repeat="user in users" class="col s6 m4 l3">
+                <div class="card">
+                    <div class="card-image">
+                        <img ng-src="{{user.img}}">
+                    </div>
+                    <div class="card-content">
+                        <p class="card-title">{{user.name}}</p>
+                    </div>
+                    <div class="card-action">
+                        <a target="_blank" ng-href="{{user.link}}">Open In New Tab</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row notificationContainer">
+            <div class="runningProcess" ng-show="runningProcess">
+                <i class="fa fa-circle-o-notch fa-spin fa-5x fa-fw"></i>
+                <span class="sr-only">Loading...</span>
+            </div>
+            <span class="notification" ng-show="notification && notification.length > 0">
+                {{notification}}
+            </span>
+        </div>
+    </div>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.6.5/angular.min.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.100.2/js/materialize.min.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/angular-materialize/0.2.2/angular-materialize.min.js"></script>
+    <script src="js/app.js"></script>
+</body>
+
+</html>

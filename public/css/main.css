@@ -1,0 +1,30 @@
+#form {
+    margin: 1em 0;
+}
+.card-content {
+    height: 1em; 
+    padding: 1.35em;
+}
+.card-title {
+    font-size: 1em; 
+    line-height: 5px;
+}
+.card-action {
+    padding: .7em 1.2em;
+}
+.notificationContainer {
+    text-align: center;
+}
+.runningProcess {
+    margin-bottom: 1.5em;
+}
+.fa-circle-o-notch {
+    color: #26a69a;
+}
+.notification {
+    color: #fff; 
+    background-color: #26a69a; 
+    border-radius: 2px; 
+    margin: 0 auto; 
+    padding: 0.5em 1em;
+}
