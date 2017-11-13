@@ -3,14 +3,14 @@
 }
 .card-content {
     height: 1em; 
-    padding: 1.35em;
+    padding: 1.35em !important;
 }
 .card-title {
-    font-size: 1em; 
-    line-height: 5px;
+    font-size: 1em !important; 
+    line-height: 5px !important;
 }
 .card-action {
-    padding: .7em 1.2em;
+    padding: .7em 1.2em !important;
 }
 .notificationContainer {
     text-align: center;
