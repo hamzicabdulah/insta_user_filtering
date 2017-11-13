@@ -67,10 +67,15 @@ function loadAllUsersAndFilter() {
     if (terminated) return;
     console.log('Loading all users');
     getAllUserLinks(0, userLinks => {
+        if (!userLinks || userLinks.length < 0) {
+            console.log('No users were returned from loading');
+            return somethingWrong('Something went wrong. Please make sure the target user\'s username is correct, or try again in a few minutes.');
+        }
         console.log('All users loaded. Now filtering');
         filterUsersByFollowers(0, userLinks, () => {
             console.log('Finished filtering all users');
             socket.emit('end', { message: 'Filtering users completed.' });
+            return;
         });
     });
 }

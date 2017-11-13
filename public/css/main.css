@@ -1,5 +1,8 @@
+nav {
+    font-family: 'Wallpoet', cursive;
+}
 #form {
-    margin: 1em 0;
+    margin: 1.3em 0 1em;
 }
 .card-content {
     height: 1em; 
@@ -14,17 +17,8 @@
 }
 .notificationContainer {
     text-align: center;
-}
-.runningProcess {
-    margin-bottom: 1.5em;
-}
-.fa-circle-o-notch {
-    color: #26a69a;
-}
-.notification {
     color: #fff; 
-    background-color: #26a69a; 
-    border-radius: 2px; 
-    margin: 0 auto; 
-    padding: 0.5em 1em;
+    background-color: #37474f; 
+    border-radius: 2px;
+    padding: 0.5em;
 }
