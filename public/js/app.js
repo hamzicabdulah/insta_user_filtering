@@ -1,5 +1,5 @@
 const App = angular.module('instaFiltering', ['ui.materialize']);
-const APP_URL = 'http://localhost:8000'; // Should be changed once deployed
+const APP_URL = 'http://localhost:3000'; // Should be changed once deployed
 
 App.controller('instaFilteringCtrl', ['$scope', '$window', ($scope, $window) => {
     const socket = io.connect(APP_URL);

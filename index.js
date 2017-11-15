@@ -81,7 +81,7 @@ function loadAllUsersAndFilter() {
 }
 
 function getAllUserLinks(prevHeight, cb) {
-    return nightmare.wait(1000)
+    return nightmare.wait(500)
         .evaluate(getHeightOfUsersDiv)
         .then(loadAllAndReturnLinks(prevHeight, cb))
         .catch(somethingWrong('Failed loading list of users. Please try again!'));
@@ -145,9 +145,11 @@ function filterUsersByFollowers(index, allUsers, cb) {
 }
 
 function filterUserAndMoveToNext(index, allUsers, cb, userLink) {
+    let shouldContinue = true;
     return (err, response, body) => {
         if (err) {
             logFail(userLink, err);
+            return filterUsersByFollowers(index + 1, allUsers, cb);
         } else {
             try {
                 var user = JSON.parse(body).user;
@@ -156,20 +158,23 @@ function filterUserAndMoveToNext(index, allUsers, cb, userLink) {
                 // i.e. Instagram responded with an error page due to bot recognition
                 logFail(userLink, err)
                 // In that case, wait 2 minutes, then try again with the same user
-                return setTimeout(() => {
+                shouldContinue = false;
+                setTimeout(() => {
                     filterUsersByFollowers(index, allUsers, cb);
                 }, 120000);
             }
-            console.log('Filtered ' + userLink);
-            if (shouldBeFollowed(user)) {
-                socket.emit('user', {
-                    link: userLink,
-                    img: user.profile_pic_url_hd,
-                    name: (user.full_name ? user.full_name.slice(0, 20) : '')
-                });
+            if (shouldContinue) {
+                console.log('Filtered ' + userLink);
+                if (shouldBeFollowed(user)) {
+                    socket.emit('user', {
+                        link: userLink,
+                        img: user.profile_pic_url_hd,
+                        name: (user.full_name ? user.full_name.slice(0, 20) : '')
+                    });
+                }
+                return filterUsersByFollowers(index + 1, allUsers, cb);
             }
         }
-        return filterUsersByFollowers(index + 1, allUsers, cb);
     }
 }
 
