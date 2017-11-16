@@ -10,6 +10,8 @@ App.controller('instaFilteringCtrl', ['$scope', '$window', ($scope, $window) => 
     $scope.runningProcess = false;
     $scope.notification = '';
     $scope.targetUserList = 'followers';
+    $scope.accountType = 'any';
+    $scope.higherList = 'unspecified';
     getLoginFromLocalStorage();
 
     socket.on('user', addToUsersArray);
@@ -61,7 +63,7 @@ App.controller('instaFilteringCtrl', ['$scope', '$window', ($scope, $window) => 
     }
 
     function dataToSend() {
-        const { username, pass, targetUsername, targetUserList } = $scope;
-        return { username, pass, targetUsername, targetUserList };
+        const { username, pass, targetUsername, targetUserList, accountType, higherList, followingNumber, followedByNumber } = $scope;
+        return { username, pass, targetUsername, targetUserList, accountType, higherList, followingNumber, followedByNumber };
     }
 }]);

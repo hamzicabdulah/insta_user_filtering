@@ -5,12 +5,7 @@ nav {
     margin: 1.3em 0 1em;
 }
 .card-content {
-    height: 1em; 
-    padding: 1.35em !important;
-}
-.card-title {
-    font-size: 1em !important; 
-    line-height: 5px !important;
+    padding: 0.5em 1em !important;
 }
 .card-action {
     padding: .7em 1.2em !important;

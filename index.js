@@ -53,7 +53,7 @@ function startProcess(data) {
         .wait('[href="/' + targetUsername + '/' + targetUserList + '/"]')
         .click('[href="/' + targetUsername + '/' + targetUserList + '/"]')
         .wait('._gs38e')
-        .then(loadAllUsersAndFilter)
+        .then(loadAllUsersAndFilter(data))
         .catch(somethingWrong('Something went wrong. Please check your Instagram login combination and target user username, or try again in a few minutes!'));
 }
 
@@ -63,25 +63,27 @@ function endFiltering() {
     console.log('Filtering process terminated by user');
 }
 
-function loadAllUsersAndFilter() {
-    if (terminated) return;
-    console.log('Loading all users');
-    getAllUserLinks(0, userLinks => {
-        if (!userLinks || userLinks.length < 0) {
-            console.log('No users were returned from loading');
-            return somethingWrong('Something went wrong. Please make sure the target user\'s username is correct, or try again in a few minutes.');
-        }
-        console.log('All users loaded. Now filtering');
-        filterUsersByFollowers(0, userLinks, () => {
-            console.log('Finished filtering all users');
-            socket.emit('end', { message: 'Filtering users completed.' });
-            return;
+function loadAllUsersAndFilter(data) {
+    return () => {
+        if (terminated) return;
+        console.log('Loading all users');
+        getAllUserLinks(0, userLinks => {
+            if (!userLinks || userLinks.length < 0) {
+                console.log('No users were returned from loading');
+                return somethingWrong('Something went wrong. Please make sure the target user\'s username is correct, or try again in a few minutes.');
+            }
+            console.log('All users loaded. Now filtering');
+            filterUsersByFollowers(0, userLinks, data, () => {
+                console.log('Finished filtering all users');
+                socket.emit('end', { message: 'Filtering users completed.' });
+                return;
+            });
         });
-    });
+    }
 }
 
 function getAllUserLinks(prevHeight, cb) {
-    return nightmare.wait(500)
+    return nightmare.wait(700)
         .evaluate(getHeightOfUsersDiv)
         .then(loadAllAndReturnLinks(prevHeight, cb))
         .catch(somethingWrong('Failed loading list of users. Please try again!'));
@@ -132,7 +134,7 @@ function recursiveRepeat(currentHeight, cb) {
     return () => getAllUserLinks(currentHeight, cb);
 }
 
-function filterUsersByFollowers(index, allUsers, cb) {
+function filterUsersByFollowers(index, allUsers, data, cb) {
     if (terminated) return;
     if (index >= allUsers.length) {
         // All users have been filtered
@@ -141,15 +143,15 @@ function filterUsersByFollowers(index, allUsers, cb) {
     const userLink = allUsers[index];
     const userJsonDataUrl = userLink + '?__a=1';
     console.log('Filtering ' + userLink);
-    request(userJsonDataUrl, filterUserAndMoveToNext(index, allUsers, cb, userLink));
+    request(userJsonDataUrl, filterUserAndMoveToNext(index, allUsers, userLink, data, cb));
 }
 
-function filterUserAndMoveToNext(index, allUsers, cb, userLink) {
+function filterUserAndMoveToNext(index, allUsers, userLink, data, cb) {
     let shouldContinue = true;
     return (err, response, body) => {
         if (err) {
             logFail(userLink, err);
-            return filterUsersByFollowers(index + 1, allUsers, cb);
+            return filterUsersByFollowers(index + 1, allUsers, data, cb);
         } else {
             try {
                 var user = JSON.parse(body).user;
@@ -160,19 +162,19 @@ function filterUserAndMoveToNext(index, allUsers, cb, userLink) {
                 // In that case, wait 2 minutes, then try again with the same user
                 shouldContinue = false;
                 setTimeout(() => {
-                    filterUsersByFollowers(index, allUsers, cb);
+                    filterUsersByFollowers(index, allUsers, data, cb);
                 }, 120000);
             }
             if (shouldContinue) {
                 console.log('Filtered ' + userLink);
-                if (shouldBeFollowed(user)) {
+                if (shouldBeDisplayed(user, data)) {
                     socket.emit('user', {
                         link: userLink,
                         img: user.profile_pic_url_hd,
-                        name: (user.full_name ? user.full_name.slice(0, 20) : '')
+                        name: user.full_name || ''
                     });
                 }
-                return filterUsersByFollowers(index + 1, allUsers, cb);
+                return filterUsersByFollowers(index + 1, allUsers, data, cb);
             }
         }
     }
@@ -183,9 +185,46 @@ function logFail(userLink, err) {
     console.log(err);
 }
 
-function shouldBeFollowed(user) {
-    if (!user) return true;
-    return (user.followed_by.count - user.follows.count <= 100);
+function shouldBeDisplayed(user, data) {
+    const { accountType, followingNumber, followedByNumber, higherList } = data;
+    if (!user) return false;
+    let bool = (isOfType(user, accountType) && hasHigherNumberOf(user, higherList));
+    if (followingNumber)
+        bool = (bool && userFollowsLessThan(user, followingNumber));
+    if (followedByNumber)
+        bool = (bool && userFollowedByLessThan(user, followedByNumber));
+    return bool;
+}
+
+function isOfType(user, type) {
+    if (type === 'private') {
+        return user.is_private;
+    } else if (type === 'public') {
+        return !user.is_private;
+    }
+    // If the type is "any"
+    return true;
+}
+
+function hasHigherNumberOf(user, list) {
+    // Returns true if the list (followers or following) of the user is higher in number than its counterpart 
+    const following = user.follows.count;
+    const followers = user.followed_by.count;
+    if (list === 'following') {
+        return following >= followers;
+    } else if (list === 'followers') {
+        return followers >= following;
+    }
+    // If list is "unspecified"
+    return true;
+}
+
+function userFollowsLessThan(user, number) {
+    return (user.follows.count <= number);
+}
+
+function userFollowedByLessThan(user, number) {
+    return (user.followed_by.count <= number);
 }
 
 function somethingWrong(message) {

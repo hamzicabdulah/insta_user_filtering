@@ -47,10 +47,34 @@
                     </div>
                     <div class="input-field col s12 m4">
                         <select name="targetUserList" ng-model="targetUserList" material-select watch>
+                            <option value="followers">Followers of Target User</option>
+                            <option value="following">Users Followed by Target User</option>
+                        </select>
+                        <label>Target User List</label>
+                    </div>
+                    <div class="input-field col s12 m4">
+                        <select name="accountType" ng-model="accountType" material-select watch>
+                            <option value="any">Any</option>
+                            <option value="private">Private</option>
+                            <option value="public">Public</option>
+                        </select>
+                        <label>Users With Account Type</label>
+                    </div>
+                    <div class="input-field col s12 m4">
+                        <select name="higherList" ng-model="higherList" ng-disabled="followingNumber && followedByNumber" material-select watch>
+                            <option value="unspecified">Unspecified</option>
                             <option value="followers">Followers</option>
                             <option value="following">Following</option>
                         </select>
-                        <label>Target User List</label>
+                        <label>Users With Higher Number of</label>
+                    </div>
+                    <div class="input-field col s12 m4">
+                        <input type="number" name="followingNumber" ng-model="followingNumber" />
+                        <label>Users Following Less Than</label>
+                    </div>
+                    <div class="input-field col s12 m4">
+                        <input type="number" name="followedByNumber" ng-model="followedByNumber" />
+                        <label>Users Followed by Less Than</label>
                     </div>
                     <p class="col s12">
                         <input type="checkbox" name="saveLogin" id="saveLogin" value="saveLogin" ng-model="saveLogin" />
@@ -67,7 +91,7 @@
                         <img ng-src="{{user.img}}">
                     </div>
                     <div class="card-content">
-                        <p class="card-title">{{user.name}}</p>
+                        <p>{{user.name}}</p>
                     </div>
                     <div class="card-action">
                         <a target="_blank" ng-href="{{user.link}}">Open In New Tab</a>
