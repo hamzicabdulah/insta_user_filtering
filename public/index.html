@@ -61,7 +61,7 @@
                         <label>Users With Account Type</label>
                     </div>
                     <div class="input-field col s12 m4">
-                        <select name="higherList" ng-model="higherList" ng-disabled="followingNumber && followedByNumber" material-select watch>
+                        <select name="higherList" ng-model="higherList" material-select watch>
                             <option value="unspecified">Unspecified</option>
                             <option value="followers">Followers</option>
                             <option value="following">Following</option>
@@ -69,11 +69,19 @@
                         <label>Users With Higher Number of</label>
                     </div>
                     <div class="input-field col s12 m4">
-                        <input type="number" name="followingNumber" ng-model="followingNumber" />
+                        <input type="number" name="followingMoreThan" ng-model="followingMoreThan" />
+                        <label>Users Following More Than</label>
+                    </div>
+                    <div class="input-field col s12 m4">
+                        <input type="number" name="followingLessThan" ng-model="followingLessThan" />
                         <label>Users Following Less Than</label>
                     </div>
                     <div class="input-field col s12 m4">
-                        <input type="number" name="followedByNumber" ng-model="followedByNumber" />
+                        <input type="number" name="followedByMoreThan" ng-model="followedByMoreThan" />
+                        <label>Users Followed by More Than</label>
+                    </div>
+                    <div class="input-field col s12 m4">
+                        <input type="number" name="followedByLessThan" ng-model="followedByLessThan" />
                         <label>Users Followed by Less Than</label>
                     </div>
                     <p class="col s12">

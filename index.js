@@ -186,13 +186,13 @@ function logFail(userLink, err) {
 }
 
 function shouldBeDisplayed(user, data) {
-    const { accountType, followingNumber, followedByNumber, higherList } = data;
+    const { accountType, followingLessThan, followingMoreThan, followedByLessThan, followedByMoreThan, higherList } = data;
     if (!user) return false;
     let bool = (isOfType(user, accountType) && hasHigherNumberOf(user, higherList));
-    if (followingNumber)
-        bool = (bool && userFollowsLessThan(user, followingNumber));
-    if (followedByNumber)
-        bool = (bool && userFollowedByLessThan(user, followedByNumber));
+    if (followingLessThan || followingMoreThan)
+        bool = (bool && userFollowsNumber(user, followingLessThan, followingMoreThan));
+    if (followedByLessThan, followedByMoreThan)
+        bool = (bool && userFollowedByNumber(user, followedByLessThan, followedByMoreThan));
     return bool;
 }
 
@@ -219,12 +219,12 @@ function hasHigherNumberOf(user, list) {
     return true;
 }
 
-function userFollowsLessThan(user, number) {
-    return (user.follows.count <= number);
+function userFollowsNumber(user, lessThan = 999999999999, moreThan = 0) {
+    return (moreThan <= user.follows.count && user.follows.count <= lessThan);
 }
 
-function userFollowedByLessThan(user, number) {
-    return (user.followed_by.count <= number);
+function userFollowedByNumber(user, lessThan = 999999999999, moreThan = 0) {
+    return (moreThan <= user.followed_by.count && user.followed_by.count <= lessThan);
 }
 
 function somethingWrong(message) {
