@@ -171,7 +171,7 @@ function filterUserAndMoveToNext(index, allUsers, userLink, data, cb) {
                     socket.emit('user', {
                         link: userLink,
                         img: user.profile_pic_url_hd,
-                        name: user.full_name || ''
+                        name: user.username
                     });
                 }
                 return filterUsersByFollowers(index + 1, allUsers, data, cb);
