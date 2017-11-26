@@ -18,6 +18,7 @@ const NIGHTMARE_OPTIONS = {
 // Global variables
 let nightmare, socket;
 let terminated; // Used in filterUsersByFollowers function to stop recursion when the user has reloaded/closed the page
+let httpRequestsAvailable = true;
 
 server.listen(PORT, () => {
     console.log('Listening on port ' + PORT);
@@ -58,9 +59,9 @@ function startProcess(data) {
 }
 
 function endFiltering() {
+    console.log('Filtering process terminated by user');
     nightmare.end();
     terminated = true;
-    console.log('Filtering process terminated by user');
 }
 
 function loadAllUsersAndFilter(data) {
@@ -76,7 +77,7 @@ function loadAllUsersAndFilter(data) {
             filterUsersByFollowers(0, userLinks, data, () => {
                 console.log('Finished filtering all users');
                 socket.emit('end', { message: 'Filtering users completed.' });
-                return;
+                return nightmare.end();
             });
         });
     }
@@ -100,7 +101,6 @@ function loadAllAndReturnLinks(prevHeight, cb) {
         if (prevHeight === currentHeight) {
             // If div is scrolled to bottom, all users are loaded, so run callback
             return nightmare.evaluate(parseLinksFromUsers)
-                .end()
                 .then(finalCallback(cb))
                 .catch(somethingWrong('Failed loading list of users. Please try again!'));
         }
@@ -143,41 +143,63 @@ function filterUsersByFollowers(index, allUsers, data, cb) {
     const userLink = allUsers[index];
     const userJsonDataUrl = userLink + '?__a=1';
     console.log('Filtering ' + userLink);
-    request(userJsonDataUrl, filterUserAndMoveToNext(index, allUsers, userLink, data, cb));
+    if (httpRequestsAvailable) {
+        return request(userJsonDataUrl, filterUserHttpRequest(index, allUsers, userLink, data, cb));
+    }
+    filterUserNightmare(index, allUsers, userLink, data, userJsonDataUrl, cb)
 }
 
-function filterUserAndMoveToNext(index, allUsers, userLink, data, cb) {
-    let shouldContinue = true;
+function filterUserHttpRequest(index, allUsers, userLink, data, cb) {
     return (err, response, body) => {
         if (err) {
             logFail(userLink, err);
             return filterUsersByFollowers(index + 1, allUsers, data, cb);
         } else {
             try {
-                var user = JSON.parse(body).user;
+                finalFilterAndMoveToNext(index, allUsers, data, body, userLink, cb);
             } catch (err) {
                 // If JSON parsing fails, it means the response is not JSON
                 // i.e. Instagram responded with an error page due to bot recognition
                 logFail(userLink, err)
-                // In that case, wait 2 minutes, then try again with the same user
-                shouldContinue = false;
+                // In that case, wait 2 minutes before enabling http requests again
+                // Meanwhile, use nightmare to filter users (which is slower)
+                httpRequestsAvailable = false;
                 setTimeout(() => {
-                    filterUsersByFollowers(index, allUsers, data, cb);
+                    httpRequestsAvailable = true;
                 }, 120000);
-            }
-            if (shouldContinue) {
-                console.log('Filtered ' + userLink);
-                if (shouldBeDisplayed(user, data)) {
-                    socket.emit('user', {
-                        link: userLink,
-                        img: user.profile_pic_url_hd,
-                        name: user.username
-                    });
-                }
-                return filterUsersByFollowers(index + 1, allUsers, data, cb);
+                // Repeat filtering same user, but this time nightmare will be used
+                return filterUsersByFollowers(index, allUsers, data, cb);
             }
         }
     }
+}
+
+function filterUserNightmare(index, allUsers, userLink, data, userJsonDataUrl, cb) {
+    return nightmare.goto(userJsonDataUrl)
+        .wait('pre')
+        .evaluate(getJsonElementContent)
+        .then(body => finalFilterAndMoveToNext(index, allUsers, data, body, userLink, cb))
+        .catch(() => {
+            logFail(userLink, 'Nightmare failed processing user\'s JSON page');
+            return filterUsersByFollowers(index + 1, allUsers, data, cb);
+        });
+}
+
+function finalFilterAndMoveToNext(index, allUsers, data, body, userLink, cb) {
+    const user = JSON.parse(body).user;
+    console.log('Filtered ' + userLink);
+    if (shouldBeDisplayed(user, data)) {
+        socket.emit('user', {
+            link: userLink,
+            img: user.profile_pic_url_hd,
+            name: user.username
+        });
+    }
+    return filterUsersByFollowers(index + 1, allUsers, data, cb);
+}
+
+function getJsonElementContent() {
+    return document.querySelector('pre').innerHTML;
 }
 
 function logFail(userLink, err) {
