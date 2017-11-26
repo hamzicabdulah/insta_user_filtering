@@ -55,7 +55,7 @@ function startProcess(data) {
         .click('[href="/' + targetUsername + '/' + targetUserList + '/"]')
         .wait('._gs38e')
         .then(loadAllUsersAndFilter(data))
-        .catch(somethingWrong('Something went wrong. Please check your Instagram login combination and target user username, or try again in a few minutes!'));
+        .catch(somethingWrong('Something went wrong. Please check your Instagram login combination and target user username. This app uses proxies to log in to your Instagram account, so you may need to approve a login from an unknown device at https://www.instagram.com/challenge'));
 }
 
 function endFiltering() {
