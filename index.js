@@ -225,6 +225,8 @@ function isOfType(user, type) {
         return user.is_private;
     } else if (type === 'public') {
         return !user.is_private;
+    } else if (type === 'verified') {
+        return user.is_verified;
     }
     // If the type is "any"
     return true;
