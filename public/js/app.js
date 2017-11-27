@@ -63,8 +63,8 @@ App.controller('instaFilteringCtrl', ['$scope', '$window', ($scope, $window) => 
     }
 
     function dataToSend() {
-        const { username, pass, targetUsername, targetUserList, accountType, higherList, followingLessThan, followingMoreThan, followedByLessThan, followedByMoreThan } = $scope;
-        return { username, pass, targetUsername, targetUserList, accountType, higherList, followingLessThan, followingMoreThan, followedByLessThan, followedByMoreThan };
+        const { username, pass, targetUsername, targetUserList, accountType, usersName, higherList, followingLessThan, followingMoreThan, followedByLessThan, followedByMoreThan } = $scope;
+        return { username, pass, targetUsername, targetUserList, accountType, usersName, higherList, followingLessThan, followingMoreThan, followedByLessThan, followedByMoreThan };
     }
 }]);
 

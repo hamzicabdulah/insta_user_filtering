@@ -187,7 +187,6 @@ function filterUserNightmare(index, allUsers, userLink, data, userJsonDataUrl, c
 
 function finalFilterAndMoveToNext(index, allUsers, data, body, userLink, cb) {
     const user = JSON.parse(body).user;
-    console.log('Filtered ' + userLink);
     if (shouldBeDisplayed(user, data)) {
         socket.emit('user', {
             link: userLink,
@@ -195,6 +194,7 @@ function finalFilterAndMoveToNext(index, allUsers, data, body, userLink, cb) {
             name: user.username
         });
     }
+    console.log('Filtered ' + userLink);
     return filterUsersByFollowers(index + 1, allUsers, data, cb);
 }
 
@@ -208,9 +208,11 @@ function logFail(userLink, err) {
 }
 
 function shouldBeDisplayed(user, data) {
-    const { accountType, followingLessThan, followingMoreThan, followedByLessThan, followedByMoreThan, higherList } = data;
+    const { accountType, usersName, followingLessThan, followingMoreThan, followedByLessThan, followedByMoreThan, higherList } = data;
     if (!user) return false;
     let bool = (isOfType(user, accountType) && hasHigherNumberOf(user, higherList));
+    if (usersName)
+        bool = (bool && hasInName(user, usersName));
     if (followingLessThan || followingMoreThan)
         bool = (bool && userFollowsNumber(user, followingLessThan, followingMoreThan));
     if (followedByLessThan, followedByMoreThan)
@@ -226,6 +228,16 @@ function isOfType(user, type) {
     }
     // If the type is "any"
     return true;
+}
+
+function hasInName(user, name) {
+    // Returns true if the user has the string inside the name variable within their username or full name
+    const nameStr = name.toLowerCase();
+    if (user.full_name)
+        var fullName = user.full_name.toLowerCase();
+    if (user.username)
+        var username = user.username.toLowerCase();
+    return ((fullName && fullName.indexOf(nameStr) >= 0) || (username && username.indexOf(nameStr) >= 0));
 }
 
 function hasHigherNumberOf(user, list) {
