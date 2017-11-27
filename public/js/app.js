@@ -67,3 +67,10 @@ App.controller('instaFilteringCtrl', ['$scope', '$window', ($scope, $window) => 
         return { username, pass, targetUsername, targetUserList, accountType, higherList, followingLessThan, followingMoreThan, followedByLessThan, followedByMoreThan };
     }
 }]);
+
+$(document).ready(function () {
+    if (!localStorage.getItem('username')) {
+        $('.modal').modal();
+        $('#modal').modal('open');
+    }
+});
