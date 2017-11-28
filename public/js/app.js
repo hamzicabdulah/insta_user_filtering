@@ -35,6 +35,12 @@ App.controller('instaFilteringCtrl', ['$scope', '$window', ($scope, $window) => 
         socket.emit('terminate process');
     }
 
+    $scope.terminateProcess = () => {
+        terminateProcess();
+        $scope.notification = 'You stopped the filtering process.';
+        $scope.runningProcess = false;
+    }
+
     $scope.startProcess = () => {
         if ($scope.saveLogin) {
             saveLoginToLocalStorage();

@@ -17,3 +17,7 @@ nav {
     border-radius: 2px;
     padding: 0.5em;
 }
+.stop {
+    margin-bottom: 1em;
+    color: #37474f;
+}

@@ -265,8 +265,10 @@ function userFollowedByNumber(user, lessThan = 999999999999, moreThan = 0) {
 
 function somethingWrong(message) {
     return () => {
-        console.log('User received message: ' + message);
-        socket.emit('end', { message });
+        if (!terminated) {
+            console.log('User received message: ' + message);
+            socket.emit('end', { message });
+        }
         return nightmare.end();
     }
 }
